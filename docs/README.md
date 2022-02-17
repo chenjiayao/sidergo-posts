@@ -42,4 +42,9 @@
 
 从现在开始 (2022-02-17)，本系列教程会持续更新，如果喜欢[请给个 star ](https://github.com/chenjiayao/sidergo)或者留言，你们的留言就是我的「[奶头乐](https://baike.baidu.com/item/%E5%A5%B6%E5%A4%B4%E4%B9%90%E7%90%86%E8%AE%BA/24573214)」😝。
 
+
+---
+
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="知识共享许可协议" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" /></a><br />本作品采用<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可。
+
 <Vssue/>

@@ -16,6 +16,6 @@
 
 [![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
 
-本仓库为 [sidergo](https://github.com/chenjiayao/sidergo) 系列教程文章，更多内容访问[ sidergo 系列教程](https://chenjiayao.github.io/sidergo-posts/posts/)了解详情
+本仓库为 [sidergo](https://github.com/chenjiayao/sidergo) 系列教程文章，更多内容访问[ sidergo 系列教程](https://chenjiayao.github.io/sidergo-posts/)了解详情
 
 <Vssue/>

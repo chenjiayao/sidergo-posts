@@ -1,6 +1,19 @@
 module.exports = {
   title: '📚 sidergo 系列教程',
     base: '/sidergo-posts/',
+    plugins: {
+        "@mr-hope/comment": {
+          type: "vssue",
+          // 设置 `platform` 而不是 `api`
+          platform: "github",
+          autoCreateIssue: true,//自动创建评论
+          // 其他的 Vssue 配置
+          owner: "chenjiayao",
+          repo: "sidergo-posts-discuss",
+          clientId: "d5dfd16c4b027f346fc5",
+          clientSecret: "39633947cdcd03cdbfe6fcad142a0fc1cb9d8b49",
+        },
+      },
   themeConfig: {
         nav: [
             { text: '首页', link: '/' },

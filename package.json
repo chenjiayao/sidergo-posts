@@ -10,9 +10,8 @@
   "author": "chenjiayaooo@gmail.com",
   "license": "MIT",
   "devDependencies": {
-    "vuepress": "^1.9.7"
-  },
-  "dependencies": {
+    "vuepress": "^1.9.7",
+    "@vssue/vuepress-plugin-vssue": "^1.4.8",
     "vuepress-theme-reco": "^1.6.11"
   }
 }

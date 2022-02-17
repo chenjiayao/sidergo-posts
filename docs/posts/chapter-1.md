@@ -62,9 +62,14 @@ goodbye
 
 TCP 是一个基于「字节流」的传输层通信协议，这里重点在「字节流」。基于字节流的意思是：不管传输的数据是文本、图片、还是视频，在 TCP 层都是将数据变成字节流发送给对方，所以上面 `hello\nworld\nand\ngoodbye\n` 在 TCP 层是这样传递的：
 
+![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/chapter-1-1.jpg)
+
 而 server 端从到 TCP 读取到字节数据之后，内心会有一个疑问：**client 给我发送了这么些个字节数据，我要怎么看？**
+
 client 希望发给 server 的信息是：「hello\nworld\nand\ngoodbye」。但是由于数据在 TCP 层传输中都是以字节的形式传输，所以 server 端只会收到字节数据，而 server 端依靠自己无法将字节数据正确解析，server 可能会解析成 `hel lo\nwo rld\n and\ng oodb ye\n` 等任意形式，好像 TCP 在传输数据过程中将数据都粘合到一起了。
-现在来解释「TCP 粘包问题」这个描述为什么不正确：**因为 TCP 本身设计只将数据以字节流的形式发送给对方，而如何解析收到的字节流数据是应用本身的事情，无法正确解析字节流数据是应用的责任，这个锅 TCP 不背。**
+
+现在来解释「TCP 粘包问题」这个描述为什么不正确：**因为 TCP 本身设计只将数据以字节流的形式发送给对方，而如何解析收到的字节流数据是应用本身的事情。**无法正确解析字节流数据是应用的责任，这个锅 TCP 不背。
+
 那 server 要如何正确解析从 TCP 层读取到的字节流数据？
 
 ## 数据解析

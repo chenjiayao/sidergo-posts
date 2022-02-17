@@ -8,7 +8,7 @@
   "description": "📚 sidergo 系列文章",
   "repository": "git@github.com:chenjiayao/sidergo-posts.git",
   "author": "chenjiayaooo@gmail.com",
-  "license": "MIT",
+  "license": "GPL",
   "devDependencies": {
     "vuepress": "^1.9.7",
     "@vssue/vuepress-plugin-vssue": "^1.4.8",

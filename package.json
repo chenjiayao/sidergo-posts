@@ -12,6 +12,7 @@
   "dependencies": {
     "@vssue/api-github-v3": "^1.4.7",
     "@vssue/vuepress-plugin-vssue": "^1.4.8",
+    "markdown-it-task-lists": "^2.1.1",
     "vuepress": "^1.9.7",
     "vuepress-theme-reco": "^1.6.11"
   }

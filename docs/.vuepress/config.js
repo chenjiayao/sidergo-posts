@@ -1,6 +1,13 @@
 module.exports = {
     title: '📚 sidergo 系列教程',
     base: '/',
+    markdown: {
+        lineNumbers: true, // 该行与本文无关，用以使代码行增加行号
+        extendMarkdown: md => {
+            // 使用更多的 markdown-it 插件!
+            md.use(require('markdown-it-task-lists'))
+        }
+    },
     plugins: {
         '@vssue/vuepress-plugin-vssue': {
             type: "vssue",

@@ -102,3 +102,8 @@ dist
 
 # TernJS port file
 .tern-port
+
+docs/.db/
+docs/.markeditor
+docs/posts/.Archive/
+docs/.posts_info.json

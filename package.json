@@ -1,0 +1,18 @@
+{
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  },
+  "name": "sidergo-posts",
+  "version": "1.0.0",
+  "description": "📚 sidergo 系列文章",
+  "repository": "git@github.com:chenjiayao/sidergo-posts.git",
+  "author": "chenjiayaooo@gmail.com",
+  "license": "MIT",
+  "devDependencies": {
+    "vuepress": "^1.9.7"
+  },
+  "dependencies": {
+    "vuepress-theme-reco": "^1.6.11"
+  }
+}

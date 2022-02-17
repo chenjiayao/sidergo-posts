@@ -14,7 +14,7 @@ date: '2022-02-17'
 
 sidergo/redis-cli 之间的通信通过是 TCP 协议，所以我们从一个简单的 Golang 网络编程代码开始。
 
-```golang
+```go
 // client/main.go
 func main() {
 	conn, _ := net.Dial("tcp", ":8081")

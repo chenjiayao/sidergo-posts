@@ -8,7 +8,7 @@ module.exports = {
             platform: "github",
             // 其他的 Vssue 配置
             owner: "chenjiayao",
-            repo: "sidergo-posts-discuss",
+            repo: "sidergo-posts",
             clientId: "d5dfd16c4b027f346fc5",
             clientSecret: "39633947cdcd03cdbfe6fcad142a0fc1cb9d8b49",
         },

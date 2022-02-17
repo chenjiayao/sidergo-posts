@@ -1239,7 +1239,7 @@
     "@vssue/utils" "^1.4.7"
     axios "^0.21.1"
 
-"@vssue/api-github-v3@^1.1.2", "@vssue/api-github-v3@^1.4.4":
+"@vssue/api-github-v3@^1.1.2", "@vssue/api-github-v3@^1.4.4", "@vssue/api-github-v3@^1.4.7":
   version "1.4.7"
   resolved "https://registry.npmmirror.com/@vssue/api-github-v3/-/api-github-v3-1.4.7.tgz#7e30304111ac34b5785abe2f99be8dcc04e94cdf"
   integrity sha512-ukhOnzGQarmj606ZiYN9iCMyr3EJS3YEPdZXX+zBLVsuzjTL5ffLbbpXsEtPBh2XNt3Ig3XdzCvA9bVXhwy4mQ==

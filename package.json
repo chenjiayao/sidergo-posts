@@ -9,9 +9,10 @@
   "repository": "git@github.com:chenjiayao/sidergo-posts.git",
   "author": "chenjiayaooo@gmail.com",
   "license": "GPL",
-  "devDependencies": {
-    "vuepress": "^1.9.7",
+  "dependencies": {
+    "@vssue/api-github-v3": "^1.4.7",
     "@vssue/vuepress-plugin-vssue": "^1.4.8",
+    "vuepress": "^1.9.7",
     "vuepress-theme-reco": "^1.6.11"
   }
 }

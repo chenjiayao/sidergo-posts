@@ -6,7 +6,6 @@ module.exports = {
             type: "vssue",
             // 设置 `platform` 而不是 `api`
             platform: "github",
-            autoCreateIssue: true,//自动创建评论
             // 其他的 Vssue 配置
             owner: "chenjiayao",
             repo: "sidergo-posts-discuss",

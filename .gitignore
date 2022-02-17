@@ -107,3 +107,6 @@ docs/.db/
 docs/.markeditor
 docs/posts/.Archive/
 docs/.posts_info.json
+docs/posts/_image/
+.DS_Store
+docs/.DS_Store

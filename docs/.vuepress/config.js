@@ -1,6 +1,6 @@
 module.exports = {
     title: '📚 sidergo 系列教程',
-    base: '/sidergo-posts/',
+    base: '/',
     plugins: {
         '@vssue/vuepress-plugin-vssue': {
             type: "vssue",

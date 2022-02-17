@@ -34,7 +34,7 @@ module.exports = {
         subSidebar: 'auto',
         sidebar: [
             { title: "首页", path: "/" },
-            { title: "一切开始于网络编程", path: "/posts/chapter-2" },
+            { title: "一切开始于网络编程", path: "/posts/chapter-1" },
         ]
     },
     locales: {

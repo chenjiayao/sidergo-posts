@@ -103,11 +103,17 @@ go func(conn net.Conn) {
 使用这种方式，就不会出现第一种方式的问题，header 中已经告知了服务端后续的数据包的长度，服务端可以准确的读取数据。
 「固定 header + 数据包长度」这种方法 不止出现在网络编程范畴中，如果你观察过 HTTP 的 header ，会发现 HTTP 的 header 中也有 `Content-Length` 字段，这个字段的作用也是为了告知 浏览器这个 HTTP 请求的 body 具体数据长度是多少。浏览器 根据这个值来读取 body 的内容。
 
-![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/chapter1-2.jpg)
+![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/chapter-1-2.jpg)
 
 这种数据包中包含任意字符，服务端都能正确解析的协议，可以称为「二进制安全」的协议。什么是「二进制安全」？
 >  二进制安全是针对字符串而言的，如果一个字符串可以包含任意字符，那么就是二进制安全的，比如 C 语言规定了，字符串都是以 `\0` 结尾，那么一个字符串中就不能出现 `\0`，所以 C 语言中的字符串不是二进制安全的。而 Go 中的字符串可以出现任意的字符，所以  Go 中的字符串是二进制安全的。
 
 ## 总结
 
+回顾一下，本章的几个重点
+1. 什么是「TCP 粘包问题」以及为什么说「TCP 粘包问题」这个描述不正确
+2. 网络编程数据解析的两个方式：
+   1. 固定分隔符分割数据
+   2. 固定 header + 数据包长度
+3. 什么是「二进制安全字符串」
 

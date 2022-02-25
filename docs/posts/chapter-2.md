@@ -116,6 +116,50 @@ member1
 2. 获取 `*` 后面的数组长度，可以遍历整个命令内容，数组的每个元素是一个多行字符串
 3. 读取 `$` 后面的数字，获取到字符串长度，读取指定长度内容，可以获取到完整字符串内容。
 
+现在我们根据上面的思路写一个 server 来尝试解析协议，在实战中理解理解 Redis 的通信协议，代码最终要实现：redis-cli 可以直接连接到我们写的 server，server 会返回redis-cli 发送的命令。
+
+完整可直接运行的代码在[这里](https://github.com/chenjiayao/sidergo/blob/master/examples/chapter2/main.go)，下面是从中截取出部分进行分析，建议各位亲自打一遍代码加深理解，毕竟我们现在才开始，后续代码会越来越多。
+
+
+``` go
+func ReadCommand(reader net.Conn) chan RedisRequet {
+	ch := make(chan RedisRequet)
+	go ParseFromSocket(reader, ch)
+	return ch
+}
+```
+ 这里真正解析 redis 命令的逻辑放在 `ParseFromSocket` 函数中，并且解析逻辑额外启动了一个 goroutine，用 channel 来传递解析结果。这么没有额外的考虑，只是为了这段代码后续可以直接集成到 sidergo 项目中。
+
+在 `ParseFromSocket` 函数中有一段逻辑：
+
+```go
+....省略部分代码，具体请看 GitHub
+
+cmdLen, err := parseOneCmdArgsLen(argsWithDelimiter)
+if err != nil {
+    ch <- PROTOCOL_ERROR_REQUEST
+    readArgsFail = true
+    break
+}
+
+cmd := make([]byte, cmdLen+2) //这里 +2 的原因是需要一并读取 \r\n : $3\r\nset\r\n
+_, err = io.ReadFull(buf, cmd)
+if err != nil {
+    ch <- PROTOCOL_ERROR_REQUEST
+    readArgsFail = true
+    break
+}
+cmds = append(cmds, cmd[:len(cmd)-2]) //去掉读取到  \r\n
+
+.....
+```
+`argsWithDelimiter` 变量代表数组中的一个元素，比如 `*3\r\n$3\r\nset\r\n$3\r\nkey\r\n$5\r\nvalue\r\n`，那么 `argsWithDelimiter` 就是 `$3\r\nset\r\n`、`$3\r\nkey\r\n` 和 `$5\r\nvalue\r\n`。
+
+`parseOneCmdArgsLen` 函数会读取每个字符串的长度，`$3\r\nkey\r\n` 最终得到 3。
+
+使用 `io.ReadFull` 函数读取字符串内容，因为需要一并读取 `\r\n`，所以需要对 `cmd` 的长度 +2：`cmd := make([]byte, cmdLen+2)`。
+
+最终的命令不需要包含 `\r\n`，所以最后要去掉尾部的 `\r\n`：`cmds = append(cmds, cmd[:len(cmd)-2])`。
 
 
 

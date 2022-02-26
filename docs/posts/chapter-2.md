@@ -153,15 +153,16 @@ cmds = append(cmds, cmd[:len(cmd)-2]) //去掉读取到  \r\n
 
 .....
 ```
-`argsWithDelimiter` 变量代表数组中的一个元素，比如 `*3\r\n$3\r\nset\r\n$3\r\nkey\r\n$5\r\nvalue\r\n`，那么 `argsWithDelimiter` 就是 `$3\r\nset\r\n`、`$3\r\nkey\r\n` 和 `$5\r\nvalue\r\n`。
 
-`parseOneCmdArgsLen` 函数会读取每个字符串的长度，`$3\r\nkey\r\n` 最终得到 3。
+稍微解释下代码逻辑：
 
-使用 `io.ReadFull` 函数读取字符串内容，因为需要一并读取 `\r\n`，所以需要对 `cmd` 的长度 +2：`cmd := make([]byte, cmdLen+2)`。
+1. `argsWithDelimiter` 变量代表数组中的一个元素，比如 `*3\r\n$3\r\nset\r\n$3\r\nkey\r\n$5\r\nvalue\r\n`，那么 `argsWithDelimiter` 就是 `$3\r\nset\r\n`、`$3\r\nkey\r\n` 和 `$5\r\nvalue\r\n`。
 
-最终的命令不需要包含 `\r\n`，所以最后要去掉尾部的 `\r\n`：`cmds = append(cmds, cmd[:len(cmd)-2])`。
+2. `parseOneCmdArgsLen` 函数会读取每个字符串的长度，`$3\r\nkey\r\n` 最终得到 3。
 
+3. 使用 `io.ReadFull` 函数读取字符串内容，因为需要一并读取 `\r\n`，所以需要对 `cmd` 的长度 +2：`cmd := make([]byte, cmdLen+2)`。
 
+4. 最终的命令不需要包含 `\r\n`，所以最后要去掉尾部的 `\r\n`：`cmds = append(cmds, cmd[:len(cmd)-2])`。
 
 
 ---

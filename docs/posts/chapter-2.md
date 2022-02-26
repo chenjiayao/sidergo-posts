@@ -165,6 +165,24 @@ cmds = append(cmds, cmd[:len(cmd)-2]) //去掉读取到  \r\n
 4. 最终的命令不需要包含 `\r\n`，所以最后要去掉尾部的 `\r\n`：`cmds = append(cmds, cmd[:len(cmd)-2])`。
 
 
+理解上面的代码逻辑之后，我们可以尝试运行下代码：`go run examples/chapter2/main.go`，运行成功之后，可以使用 redis-cli 连接到我们写的服务端：`redis-cli -p 3101`，如果顺利，我们可以成功连接到服务端，尝试输入任何命令：
+
+```
+➜  ~ redis-cli -p 3101
+127.0.0.1:3101> set key value
+1) "set"
+2) "key"
+3) "value"
+```
+
+服务端会把 redis-cli 发送的命令直接 echo 回去。
+到这里，整个解析的逻辑已经完成了，不过由于整个解析的逻辑还算比较复杂，我们可以尝试对 `ParseFromSocket` 写单元测试
+
+
+### 接口和单元测试
+
+
+
 ---
 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="知识共享许可协议" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" /></a><br />本作品采用<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可。

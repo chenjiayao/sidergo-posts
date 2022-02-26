@@ -176,10 +176,24 @@ cmds = append(cmds, cmd[:len(cmd)-2]) //去掉读取到  \r\n
 ```
 
 服务端会把 redis-cli 发送的命令直接 echo 回去。
-到这里，整个解析的逻辑已经完成了，不过由于整个解析的逻辑还算比较复杂，我们可以尝试对 `ParseFromSocket` 写单元测试
+到这里，整个解析的逻辑已经完成了，不过由于整个解析的逻辑还算比较复杂，我们可以尝试对 `ParseFromSocket` 写单元测试。
 
 
 ### 接口和单元测试
+
+Golang 设计之初就考虑到单元测试，所以使用 Golang 写单元测试代码会简单一点。关于 Golang 单元测试的基本使用网上已经有很丰富的教程，这里不做过多描述，如果不熟悉的同学可以先去大概了解下，毕竟我们后续还会编写单元测试代码。
+
+虽然 Golang 编写单元测试很友好，但是具体到 `ParseFromSocket` 函数，你可以很快就不知道要怎么写了，大概的原因有几个：
+
+1. `ParseFromSocket` 函数中启动了一个新的 goroutine，并且使用 channel 传递数据了，那单元测试要怎么写
+2. 在单元测试中我们需要去调用 `ParseFromSocket` 函数，但是这个函数的第一个参数 reader 是 `net.Conn` 类型，那我们要如何构造一个 `net.Conn` 类型的变量？
+
+大概这两个问题是我们在写 `ParseFromSocket` 的单元测试代码路上碰到最大的绊脚石，看看我们要怎么处理掉它们。
+
+```golang
+func TestParseFromSocket(t *testing.T) {
+}
+```
 
 
 

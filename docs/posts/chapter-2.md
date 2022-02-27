@@ -187,7 +187,7 @@ Golang 设计之初就考虑到单元测试，所以使用 Golang 写单元测�
 
 
 
-大概这两个问题是我们在写 `ParseFromSocket` 的单元测试代码路上碰到最大的绊脚石，看看我们要怎么处理掉它们。
+
 
 ```golang
 func TestParseFromSocket(t *testing.T) {

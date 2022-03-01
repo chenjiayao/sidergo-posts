@@ -185,7 +185,18 @@ Golang 设计之初就考虑到单元测试，所以使用 Golang 写单元测�
 
 虽然 Golang 编写单元测试很友好，但是具体到 `ParseFromSocket` 函数，很大的原因是：**在单元测试中我们需要去调用 `ParseFromSocket` 函数，但是这个函数的第一个参数 reader 是 `net.Conn` 类型，那我们要如何构造一个 `net.Conn` 类型的变量？**
 
+```golang
 
+ch := make(chan request.RedisRequet)
+go ParseFromSocket(???, ch)
+
+r := <-ch
+want := "SET key value"
+got := r.ToStrings()
+if want != got {
+    t.Errorf("err: %s", r.ToStrings())
+}
+```
 
 
 

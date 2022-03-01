@@ -12,7 +12,7 @@ date: '2022-02-17'
 想要实现一个 redis-server，能够使用 redis-cli 进行操作，那么必须理解 Redis 的通信协议，并且使用 Redis 的通信协议来进行网络编程。幸运的是，Redis 的通信协议：[RESP](https://redis.io/topics/protocol) 非常简单。redis 作为一个高性能服务器，通信协议上没有设计的很高深，而是直接使用文本传输。下面我们来尝试下解析 Redis 的通信协议。
 
 
-### Redis 通信协议
+## Redis 通信协议
 
 Redis 通信协议将数据类型分为 5 种：
 
@@ -179,11 +179,11 @@ cmds = append(cmds, cmd[:len(cmd)-2]) //去掉读取到  \r\n
 到这里，整个解析的逻辑已经完成了，不过由于整个解析的逻辑还算比较复杂，我们可以尝试对 `ParseFromSocket` 写单元测试。
 
 
-### 接口和单元测试
+## 接口和单元测试
 
 Golang 设计之初就考虑到单元测试，所以使用 Golang 写单元测试代码会简单一点。关于 Golang 单元测试的基本使用网上已经有很丰富的教程，这里不做过多描述，如果不熟悉的同学可以先去大概了解下，毕竟我们后续还会编写单元测试代码。
 
-虽然 Golang 编写单元测试很友好，但是具体到 `ParseFromSocket` 函数，很大的原因是：**在单元测试中我们需要去调用 `ParseFromSocket` 函数，但是这个函数的第一个参数 reader 是 `net.Conn` 类型，那我们要如何构造一个 `net.Conn` 类型的变量？**
+虽然 Golang 编写单元测试很友好，但是具体到 `ParseFromSocket` 函数可能无法正确编写单元测试，很大的原因是：**在单元测试中我们需要去调用 `ParseFromSocket` 函数，但是这个函数的第一个参数 reader 是 `net.Conn` 类型，那我们要如何构造一个 `net.Conn` 类型的变量？**
 
 ```golang
 
@@ -197,14 +197,35 @@ if want != got {
     t.Errorf("err: %s", r.ToStrings())
 }
 ```
-
-
+如果你也碰到过类似的问题，并且因此放弃了单元测试，那么可以尝试把 `ParseFromSocket(reader net.Conn, ch chan RedisRequet)` 改成 `ParseFromSocket(reader io.Reader, ch chan RedisRequet)`，这样 `ParseFromSocket` 函数的逻辑不用做更改，对其编写单元测试代码也很方便：
 
 ```golang
 func TestParseFromSocket(t *testing.T) {
+
+	var buf bytes.Buffer
+	buf.Write([]byte("*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n"))
+	ch := make(chan request.RedisRequet)
+	go ParseFromSocket(&buf, ch)
+
+	r := <-ch
+	if r.ToStrings() != "SET key value" {
+		t.Errorf("err: %s", r.ToStrings())
+	}
 }
 ```
+这个编程思想其实是：「面向接口编程」。**函数的参数不是一个具体的结构体/对象，而是一个抽象的接口。这样我们在对这个函数测试，只要传递一个实现了这个接口的简单结构体即可。**放到我们这个例子中就是：`ParseFromSocket` 函数的参数不是具体的 `net.Conn`，而是改成抽象的 `io.Reader` 接口，这样我们对 `ParseFromSocket` 进行单元测试，只要传递 `bytes.Buffer` 结构体就行，因为 `bytes.Buffer` 也实现 `io.Reader` 接口，但是创建一个 `bytes.Buffer` 结构体简单很多。
 
+你可以在网上找到很多关于面相接口编程的优点：解耦、依赖抽象不依赖具体等等。。。我们这边关注 sidergo 的实现，所以不展开说明，只是在单元测试中碰到了，并且确实是一个比较常用的技巧，所以这里花了一点篇幅描述。
+
+这里再补充一点我关于对单元测试的看法，单元测试的难度不在单元测试，而是在单元测试之外。单元测试代码是否好写，更多考验的是代码结构、编程思想等软件工程能力，如果代码本身耦合度良好，那么单元测试就很好写（上面的例子也算是一个佐证。所以要实践单元测试，提高代码可读性、编写耦合度良好的代码才是根本。
+
+到这里，我们前期的基础知识已经都准备完毕了，下一篇我们就要正式进入 sidergo 的代码实现了，敬请期待。😃
+
+## 总结
+
+回顾一下，本章的几个重点：
+1. 解析 redis 的通信协议
+2. 面相接口编程在单元测试中的实践
 
 
 ---

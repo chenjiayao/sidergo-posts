@@ -36,6 +36,7 @@ module.exports = {
             { title: "首页", path: "/" },
             { title: "一切开始于网络编程", path: "/posts/chapter-1" },
             { title: "Redis 通信协议", path: "/posts/chapter-2" },
+            { title: "sidergo 整体结构设计", path: "/posts/chapter-3" },
         ]
     },
     locales: {

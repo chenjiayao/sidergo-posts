@@ -57,3 +57,62 @@ interface
 ```
 
 到这里你可能会有一个疑问：为什么好像需要创建一个结构体的时候，就创建一个对应的 interface 🤔️
+
+在一些人看来，这个作风很像 Java 🤣：代码开始之前什么都先不管，先写一堆 interface 再说。这种看似有点过度设计的行为，在这里其实是有意义的：**解决 import cycle 问题。**
+
+
+### import cycle 问题
+
+在 golang 中，如果两个结构体互相依赖，那么就会产生 import cycle 问题：
+
+![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/chapter-3-1.jpg)
+
+```go
+
+package pack1
+
+import "pack2"
+
+type A struct {
+    b pack2.B
+}
+
+///////////////
+
+package pack2
+
+import "pack1"
+
+type B struct {
+    a pack1.A
+}
+
+```
+运行上面代码，你就会收获一个 `import cycle not allowed` 报错。会碰到这种报错大概率是因为项目结构设计有瑕疵导致的。
+
+常见的解决 `import cycle` 问题的方案就是**定义接口，从依赖具体改成依赖抽象**。
+
+```go
+type interfaceB interface{
+    testb()
+}
+
+type interfaceA interface{
+    testa()
+}
+
+
+type A struct {
+    b interfaceB
+}
+func(a *A)testa(){}
+
+
+type B struct {
+    a interfaceA
+}
+func (b *B)testb(){}
+
+```
+
+![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/chapter-3-1.jpg)

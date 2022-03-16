@@ -38,4 +38,22 @@ sidergo
 1. 在第二篇中，我们提到 redis 通信协议中设计了 5 个返回类型，那么我们可以设计一个 response 的抽象接口。
 2. redis-cli 发送的命令，比如：`set key value`，我们会封装成一个结构体，所以也设计一个 request 的 interface，然后由结构体来实现 request interface。
 3. 在 Golang 中，通常使用 `net.Conn` 表示一个连接，不过 `net.Conn` 不满足我们的需求，所以我们会自行封装一个 conn 结构体，和 2 的想法一样，我们也设计一个 conn 的 interface。
-4. 在 redis 中，会有很多 db，db 中保存各种数据，所以我们会有一个 RedisDB 的结构体。同样，我们也创建一个 DB 的 interface。
+4. 在 redis 中，会有很多 db，在 db 中保存各种数据，所以我们会有一个 RedisDB 的结构体。同样，我们也创建一个 DB 的 interface。
+5. 我们需要一个 server 的结构体代表 redis-server，所以我们也创建一个 server 的 interface。
+
+这样的目录结构变成下面的样子:
+```
+interface
+├── conn
+│   └── conn.go
+├── db
+│   └── db.go
+├── request
+│   └── request.go
+├── response
+│   └── response.go
+└── server
+    └── server.go
+```
+
+到这里你可能会有一个疑问：为什么好像需要创建一个结构体的时候，就创建一个对应的 interface 🤔️

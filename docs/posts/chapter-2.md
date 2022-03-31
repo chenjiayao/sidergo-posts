@@ -12,7 +12,7 @@ date: '2022-02-17'
 想要实现一个 redis-server，能够使用 redis-cli 进行操作，那么必须理解 Redis 的通信协议，并且使用 Redis 的通信协议来进行网络编程。幸运的是，Redis 的通信协议：[RESP](https://redis.io/topics/protocol) 非常简单。redis 作为一个高性能服务器，通信协议上没有设计的很高深，而是直接使用文本传输。下面我们来尝试下解析 Redis 的通信协议。
 
 
-## Redis 通信协议
+## 理解 Redis 通信协议
 
 Redis 通信协议将数据类型分为 5 种：
 
@@ -110,13 +110,15 @@ member1
 
 ```
 
+## 代码实现
+
 虽然有 5 种数据类型，但是 client 发送给 server 的数据类型只有一个数组形式。这对我们实现 sidergo 是个好消息，因为我们只要解析数组就可以。假设执行命令：`set key value`，那么服务端收到的数据为 `*3\r\n$3\r\nset\r\n$3\r\nkey\r\n$5\r\nvalue\r\n`，现在我们尝试解析下这段文本：
 
 1. 根据首字符是不是 `*` 判断协议格式是否正确
 2. 获取 `*` 后面的数组长度，可以遍历整个命令内容，数组的每个元素是一个多行字符串
 3. 读取 `$` 后面的数字，获取到字符串长度，读取指定长度内容，可以获取到完整字符串内容。
 
-现在我们根据上面的思路写一个 server 来尝试解析协议，在实战中理解理解 Redis 的通信协议，代码最终要实现：redis-cli 可以直接连接到我们写的 server，server 会返回redis-cli 发送的命令。
+现在我们根据上面的思路写一个 server 来尝试解析协议，在实战中理解理解 Redis 的通信协议，代码最终要实现：**redis-cli 可以直接连接到我们写的 server，server 会返回redis-cli 发送的命令**。
 
 完整可直接运行的代码在[这里](https://github.com/chenjiayao/sidergo/blob/master/examples/chapter2/main.go)，下面是从中截取出部分进行分析，建议各位亲自打一遍代码加深理解，毕竟我们现在才开始，后续代码会越来越多。
 

@@ -22,7 +22,7 @@ skiplist 的目的是为了快速查找，它本质上是一个「有序链表�
 
 在代码中，通常会这么设计有序链表
 
-```golang
+```go
 type Node struct {
     Element     //保存元素
     backward *Node //前一个节点
@@ -45,7 +45,7 @@ type Node struct {
 
 这种情况下，Node 结构体可以设计成这样
 
-```golang
+```go
 type Node struct {
     Element
     forwards   []*Node //  下一个节点，
@@ -55,9 +55,9 @@ type Node struct {
 
 这种形态距离真正的 skiplist 已经很接近了，真正的 skiplist 对于哪些节点要增加指针是随机的。
 
-![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220402110046.png)
+![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220402151753.png)
 
-上面的图示就是一个 skiplist，对于哪个节点需要增加指针，增加多少个指针是随机的。这样，skiplist 的时间复杂度是 `O(log n)`，和树的时间复杂度一样，效率很高。
+上面的图示就是一个 skiplist，对于哪个节点需要增加指针，增加多少个指针是随机的。可以看到 node 的层级越多，能跳过的 node 就有可能越多，查找速度有可能越快，但是也不能任凭层级无限制的增长，通常一个 skiplist 会设置一个 `MAX_LEVEL` 来限制最大的 level。skiplist 的时间复杂度是 `O(log n)`，和树的时间复杂度一样，效率很高。
 
 
 ## 👨‍💻 代码实现
@@ -66,7 +66,7 @@ type Node struct {
 
 首先 Node 的结构体上面已经提到了
 
-```golang
+```go
 
 type Element struct {
 	Score  float64
@@ -90,7 +90,7 @@ type Node struct {
 
 除了 Node，还需要一个结构体来表示 skiplist
 
-```golang
+```go
 type SkipList struct {
     tail   *Node
     header *Node
@@ -106,9 +106,9 @@ type SkipList struct {
 2. member
 3. level
 
-前两个为 redis zset 需要的，第三个 level 可以设定当前 Node 的层数。有了这 3 个属性，我们可以实现 `MakeNode`
+前两个为 redis zset 需要的，第三个参数 level 可以设定当前 Node 的层数。有了这 3 个属性，我们可以实现 `MakeNode`
 
-```golang
+```go
 func MakeNode(level int, score float64, member string) *Node {
 
     node := &Node{
@@ -131,14 +131,55 @@ func MakeNode(level int, score float64, member string) *Node {
 
 `MakeSkipList` 会创建一个 skiplist，为了代码逻辑比较清楚，通常会为 skiplist 创建一个 node，这个 node 不保存 Element，把这个空 Node 当作 skiplist 的 header。
 
-```golang
-func MakeSkipList() *SkipList {
-	return &SkipList{
-		tail:   nil,
-		header: MakeNode(MAX_LEVEL, 0, ""),
-		level:  1,
-		length: 0,
-	}
-}
+```go
+const MAX_LEVEL = 6 //限制 skiplist 最高层级不能超过 6 层
 
+func MakeSkipList() *SkipList {
+    return &SkipList{
+        tail:   nil,
+        header: MakeNode(MAX_LEVEL, 0, ""), //空元素节点作为 header，header 拥有最高层级
+        level:  1,
+        length: 0,
+    }
+}
 ```
+
+现在，我们已经实现了创建 `MakeSkipList` 和 `MakeNode` 方法，现在只要再实现 skiplist 的 CUD 方法就可以了。
+
+### Remove
+
+有序链表的增删改都需要先找到该节点，所以实现 remove 之前，我们需要先理解 skiplist 如何查找。
+
+前面提到 skiplist 是有序链表，**这里要注意，这里的顺序是按照 score 排序的，如果 score 一样再根据 member 排序，类似 sql 中的 `order by score acs, member acs`。**
+
+
+
+假设我们要查找 score=12 的 element，当前节点为 `currentNode`，遍历 `currentNode.levels`，遍历会有 3 种情况(每个图示中黄色线条为查找示例)：
+
+1. 第一种 `currentNode.levels[i] == nil`，这种情况下说明该层级指向的下一个节点已经到达 skiplist tail 了，继续查找下一个 level。
+![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220402151428.png)
+
+2. 第二种情况 `currentNode.levels[i].Element.score > score`，这种情况说明这个层级的下一个节点 score 已经超出了我们给定的 score。继续查找下一个 level。
+![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220402151512.png)
+
+3. 第三种情况 `curretNode.levesl[i].Element.score <= score`，这种情况说明这个层级的下一个节点 score 小于(或等于)我们给定的 score，这个情况下，currentNode 可以直接跳到该 node：`currentNode = currentNode.levels[i]`。
+![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220402151547.png)
+
+理清楚查找的 3 个情况，我们就可以实现 remove 方法了 👏
+
+```go
+func (skipList *SkipList) remove(score float64, member string) *Node {
+    currentNode := skipList.header
+    for i := skipList.level - 1; i >= 0; i-- {
+    //这里的 for 为 true 相当于情况 3，但是是用「不是 情况 1」 && 「不是情况 2 」来表示
+	for 
+            currentNode.levels[i].forward != nil
+             &&
+            (currentNode.levels[i].forward.Score < score || (currentNode.levels[i].forward.Score == score && currentNode.levels[i].forward.Member < member)) {
+		currentNode = currentNode.levels[i].forward
+	    }
+	}
+    
+}
+```
+注意看代码中的注释，这是理解查找的关键。

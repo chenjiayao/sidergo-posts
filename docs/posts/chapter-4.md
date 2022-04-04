@@ -35,6 +35,16 @@ type Node struct {
 ![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220402103927.png)
 
 
+这种情况下，有一些节点（比如节点 3）会有多个 forward 指针，所以 Node 的结构体变成下面专业：
+
+```go
+type Node struct {
+    Element
+    forwards   []*Node //  多个下一个节点
+    backward *Node    //  最底层的前一个节点
+}
+```
+
 这样有序链表就进化了，现在假设我们要查找 19，查找思路如下：
 
 1. 从 3 的两个 forward 指针遍历，第一个 foward 指向的下一个元素的值为 12，12 < 19，那么 12 之前的节点都就不用遍历了。在上面的图示中，节点 8 在查找过程中就被跳过了，这也是 skiplist 名字的由来。
@@ -43,21 +53,13 @@ type Node struct {
 
 和有序列表对比查找效率，有序列表需要遍历 `3-8-12-19`，而现在只要遍历 `3-12-19`，如果链表长度够长，那么效率提高会更明显。
 
-这种情况下，Node 结构体可以设计成这样
 
-```go
-type Node struct {
-    Element
-    forwards   []*Node //  下一个节点，
-    backward *Node    //  最底层的前一个节点
-}
-```
 
 这种形态距离真正的 skiplist 已经很接近了，真正的 skiplist 对于哪些节点要增加指针是随机的。
 
 ![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220402151753.png)
 
-上面的图示就是一个 skiplist，对于哪个节点需要增加指针，增加多少个指针是随机的。可以看到 node 的层级越多，能跳过的 node 就有可能越多，查找速度有可能越快，但是也不能任凭层级无限制的增长，通常一个 skiplist 会设置一个 `MAX_LEVEL` 来限制最大的 level。skiplist 的时间复杂度是 `O(log n)`，和树的时间复杂度一样，效率很高。
+上面的图示就是一个 skiplist，对于哪个节点需要增加指针，增加多少个指针是随机的。可以看到 node 的层级越多，能跳过的 node 就有可能越多，查找速度有可能越快，但是也不能任凭层级无限制的增长，通常一个 skiplist 会设置一个 `MAX_LEVEL` 来限制最大的层级（代码中用 level 表示）。skiplist 的时间复杂度是 `O(log n)`，和树的时间复杂度一样，效率很高。
 
 
 ## 👨‍💻 代码实现
@@ -84,9 +86,9 @@ type Node struct {
 }
 ```
 
-以节点 8 为例子来展示下 Node 各个属性所表示的含义
+下图用来展示下 Node 各个属性所表示的含义
 
-![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220402114625.png)
+![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220404222606.png)
 
 除了 Node，还需要一个结构体来表示 skiplist
 
@@ -170,7 +172,7 @@ func MakeSkipList() *SkipList {
 ```go
 func (skipList *SkipList) remove(score float64, member string) *Node {
     currentNode := skipList.header
-    for i := skipList.level - 1; i >= 0; i-- {
+    for i := MAX_LEVEL - 1; i >= 0; i-- {
     //这里的 for 为 true 相当于情况 3，但是是用「不是 情况 1」 && 「不是情况 2 」来表示
 	for 
             currentNode.levels[i].forward != nil

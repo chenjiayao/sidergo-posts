@@ -27,7 +27,7 @@
 - [x] msetnx、incr 等命令原子操作实现
 - [x] 核心逻辑的单元测试 
 - [x] skipList 数据结构实现，用于 redis zset 数据结构的底层存储
-- [ ] 集群模式 
+- [x] 集群模式 
 - [ ] sentinel 模式
 
 

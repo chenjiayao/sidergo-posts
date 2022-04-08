@@ -25,10 +25,10 @@ module.exports = {
         nav: [
             { text: '首页', link: '/' },
             {
-                text: 'JayChen\'s story',
-                items: [
-                    { text: 'Github', link: 'https://github.com/chenjiayao' },
-                ]
+                text: 'JayChen\'s story', link: 'https://blog.jaychen.fun'
+            },
+            {
+                text: 'Github', link: 'https://github.com/chenjiayao'
             }
         ],
         subSidebar: 'auto',

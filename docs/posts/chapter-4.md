@@ -30,12 +30,12 @@ type Node struct {
 }
 ```
 
-如果，我们要提高有序链表的查找效率，**取间隔节点，对节点新增一个指针，指向下下个节点**：
+如果，我们要提高有序链表的查找效率，**可以取间隔节点，对节点新增一个指针，指向下下个节点**：
 
 ![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220402103927.png)
 
 
-这种情况下，有一些节点（比如节点 3）会有多个 forward 指针，所以 Node 的结构体变成下面专业：
+这种情况下，有一些节点（比如节点 3）会有多个 forward 指针，所以 Node 的结构体变成下面这样：
 
 ```go
 type Node struct {

@@ -146,7 +146,7 @@ func MakeSkipList() *SkipList {
 }
 ```
 
-现在，我们已经实现了创建 `MakeSkipList` 和 `MakeNode` 方法，现在只要再实现 skiplist 的 CUD 方法就可以了。
+现在，我们已经实现了创建 `MakeSkipList` 和 `MakeNode` 方法，现在只要再实现 skiplist 的增删改方法就可以了。
 
 ### Remove
 
@@ -158,10 +158,10 @@ func MakeSkipList() *SkipList {
 
 假设我们要查找 score=12 的 element，当前节点为 `currentNode`，遍历 `currentNode.levels`，遍历会有 3 种情况(每个图示中黄色线条为查找示例)：
 
-1. 第一种 `currentNode.levels[i] == nil`，这种情况下说明该层级指向的下一个节点已经到达 skiplist tail 了，继续查找下一个 level。
+1. 第一种 `currentNode.levels[i] == nil`，这种情况下说明该层级指向的下一个节点已经到达 skiplist tail 了，继续查找下一层 level。
 ![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220402151428.png)
 
-2. 第二种情况 `currentNode.levels[i].Element.score > score`，这种情况说明这个层级的下一个节点 score 已经超出了我们给定的 score。继续查找下一个 level。
+2. 第二种情况 `currentNode.levels[i].Element.score > score`，这种情况说明这个层级的下一个节点 score 已经超出了我们给定的 score。继续查找下一层 level。
 ![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220402151512.png)
 
 3. 第三种情况 `curretNode.levesl[i].Element.score <= score`，这种情况说明这个层级的下一个节点 score 小于(或等于)我们给定的 score，这个情况下，currentNode 可以直接跳到该 node：`currentNode = currentNode.levels[i]`。
@@ -181,7 +181,28 @@ func (skipList *SkipList) remove(score float64, member string) *Node {
 		currentNode = currentNode.levels[i].forward
 	    }
 	}
+
+    //现在 currentNode 的下一个节点就是要删除的节点
     
 }
 ```
 注意看代码中的注释，这是理解查找的关键。
+
+执行完 for 的代码之后，`currentNode` 的下一个节点就是要删除的节点。假设我们要删除 19，那么 currentNode 现在指向 12 节点，现在我们要考虑删除 19 之后要更新哪些数据？
+
+1. 节点 23 的 backward 指针
+2. 指向 19 的 fowards 指针，在这里应该是`节点 8 的 levels[1].forward `和`节点 12 的 levels[0].forward`。
+
+
+上面的情况 2 是针对删除节点 19 的情况，但是实际会有其他的情况，比如要删除的节点是 23，那么要更新的 forwards 指针就不一样了，所以情况 2 需要有一个更加通用的描述。
+
+为了方便描述，假设要删除的节点是 delNode，delNode 的前一个节点是 backwardDelNode，那么更新 forwards 指针应该是
+
+1. 如果 `len(delNode.levels) <= len(backwardDelNode.levels)`，那么只要更新 backwardDelNode 中 `levels[0:len(delNode.levels) - 1]` 的 forward 指针。（如下图黄色线条部分
+![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220408115042.png)
+   
+2. 如果 `len(delNode.levels) > len(backwardDelNode.levels)`，那么要更新的 forwards 分成了两个部分
+   1. backwardDelNode 中 `levels[0:len(backwardDelNode.levels) - 1]`
+    ![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220408115749.png)
+   2. 其他节点的 `levels[len(backwardDelNode.levels):len(delNode.levels) - 1]`
+   ![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220408115911.png)

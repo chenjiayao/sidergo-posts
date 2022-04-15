@@ -200,13 +200,15 @@ func (skipList *SkipList) remove(score float64, member string) *Node {
 
 为了方便描述，假设要删除的节点是 delNode，delNode 的前一个节点是 backwardDelNode，那么更新 forwards 指针应该是
 
-1. 如果 `len(delNode.levels) <= len(backwardDelNode.levels)`，那么只要更新 backwardDelNode 中 `levels[0:len(delNode.levels) - 1]` 的 forward 指针。（如下图黄色线条部分
+1. delNode 是 23，那么 `len(delNode.levels) <= len(backwardDelNode.levels)`，那么只要更新 backwardDelNode 中 `levels[0:len(delNode.levels) - 1]` 的 forward 指针。（如下图黄色线条部分
 ![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220408115042.png)
    
-2. 如果 `len(delNode.levels) > len(backwardDelNode.levels)`，那么要更新的 forwards 分成了两个部分
+2. delNode 是 19，那么 `len(delNode.levels) > len(backwardDelNode.levels)`，那么要更新的 forwards 分成了两个部分
    1. backwardDelNode 中 `levels[0:len(backwardDelNode.levels) - 1]`
     ![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220408115749.png)
    2. 其他节点的 `levels[len(backwardDelNode.levels):len(delNode.levels) - 1]`
    ![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220408115911.png)
 
 上面的情况，「1」和「2.1」比较好处理，但是「2.2」的情况比较麻烦一些，因为 2.2 情况要更新 forward 指针的可以是任意节点。
+
+为了准确描述 2.2 的情况，

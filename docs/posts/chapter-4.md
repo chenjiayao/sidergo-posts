@@ -150,6 +150,8 @@ func MakeSkipList() *SkipList {
 
 ### Remove
 
+
+
 有序链表的增删改都需要先找到该节点，所以实现 remove 之前，我们需要先理解 skiplist 如何查找。
 
 前面提到 skiplist 是有序链表，**这里要注意，这里的顺序是按照 score 排序的，如果 score 一样再根据 member 排序，类似 sql 中的 `order by score acs, member acs`。**
@@ -206,3 +208,5 @@ func (skipList *SkipList) remove(score float64, member string) *Node {
     ![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220408115749.png)
    2. 其他节点的 `levels[len(backwardDelNode.levels):len(delNode.levels) - 1]`
    ![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220408115911.png)
+
+上面的情况，「1」和「2.1」比较好处理，但是「2.2」的情况比较麻烦一些，因为 2.2 情况要更新 forward 指针的可以是任意节点。

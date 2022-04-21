@@ -152,7 +152,7 @@ func MakeSkipList() *SkipList {
 
 
 
-有序链表的增删改都需要先找到该节点，所以实现 remove 之前，我们需要先理解 skiplist 如何查找。
+虽然 skiplist 中不会有 Find 函数，但是增删改都需要先查找到节点，所以在实现增删改之前，我们需要先理解 skiplist 如何查找。
 
 前面提到 skiplist 是有序链表，**这里要注意，这里的顺序是按照 score 排序的，如果 score 一样再根据 member 排序，类似 sql 中的 `order by score acs, member acs`。**
 
@@ -169,15 +169,17 @@ func MakeSkipList() *SkipList {
 3. 第三种情况 `curretNode.levesl[i].Element.score <= score`，这种情况说明这个层级的下一个节点 score 小于(或等于)我们给定的 score，这个情况下，currentNode 可以直接跳到该 node：`currentNode = currentNode.levels[i]`。
 ![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220402151547.png)
 
+以上 3 种情况覆盖了 skiplist 查找的所有可能，理解了查找逻辑之后，我们可以开始实现删除逻辑了。
+
 ### Remove
 
-理清楚查找的 3 个情况，我们就可以实现 remove 方法了 👏
+在删除某个元素之前，我们需要找到这个元素，根据上面的查找的思路，我们可以尝试编写代码：
 
 ```go
 func (skipList *SkipList) remove(score float64, member string) *Node {
     currentNode := skipList.header
     for i := MAX_LEVEL - 1; i >= 0; i-- {
-    //这里的 for 为 true 相当于情况 3，但是是用「不是 情况 1」 && 「不是情况 2 」来表示
+    //这里的 for 为 true 相当于查找的情况 3，但是是用「不是 情况 1」 && 「不是情况 2 」来表示
 	for 
             currentNode.levels[i].forward != nil
              &&
@@ -195,7 +197,7 @@ func (skipList *SkipList) remove(score float64, member string) *Node {
 执行完 for 的代码之后，`currentNode` 的下一个节点就是要删除的节点。假设我们要删除 19，那么 currentNode 现在指向 12 节点，现在我们要考虑删除 19 之后要更新哪些数据？
 
 1. 节点 23 的 backward 指针
-2. 指向 19 的 fowards 指针，在这里应该是`节点 8 的 levels[1].forward `和`节点 12 的 levels[0].forward`。
+2. 指向 19 的 fowards 指针，在这里应该是`节点 8 的 levels[1].forward `和`节点 12 的 levels[0].forward`
 
 
 上面的情况 2 是针对删除节点 19 的情况，但是实际会有其他的情况，比如要删除的节点是 23，那么要更新的 forwards 指针就不一样了，所以情况 2 需要有一个更加通用的描述。
@@ -212,5 +214,6 @@ func (skipList *SkipList) remove(score float64, member string) *Node {
    ![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220408115911.png)
 
 上面的情况，「1」和「2.1」比较好处理，但是「2.2」的情况比较麻烦一些，因为 2.2 情况要更新 forward 指针的可以是任意节点。
+
 
 

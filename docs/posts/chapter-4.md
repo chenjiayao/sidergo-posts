@@ -148,7 +148,7 @@ func MakeSkipList() *SkipList {
 
 现在，我们已经实现了创建 `MakeSkipList` 和 `MakeNode` 方法，现在只要再实现 skiplist 的增删改方法就可以了。
 
-### Remove
+### Find
 
 
 
@@ -168,6 +168,8 @@ func MakeSkipList() *SkipList {
 
 3. 第三种情况 `curretNode.levesl[i].Element.score <= score`，这种情况说明这个层级的下一个节点 score 小于(或等于)我们给定的 score，这个情况下，currentNode 可以直接跳到该 node：`currentNode = currentNode.levels[i]`。
 ![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220402151547.png)
+
+### Remove
 
 理清楚查找的 3 个情况，我们就可以实现 remove 方法了 👏
 
@@ -211,4 +213,4 @@ func (skipList *SkipList) remove(score float64, member string) *Node {
 
 上面的情况，「1」和「2.1」比较好处理，但是「2.2」的情况比较麻烦一些，因为 2.2 情况要更新 forward 指针的可以是任意节点。
 
-为了准确描述 2.2 的情况，
+

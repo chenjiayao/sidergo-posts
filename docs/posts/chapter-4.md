@@ -264,7 +264,7 @@ remove 的逻辑差不多已经完成了，主要的难点有 2 个：
 2. 删除之后更新 forward 指针
 
 
-### insert
+### Insert
 
 insert 的逻辑和 remove 差不多：
 1. 找到要插入节点的位置

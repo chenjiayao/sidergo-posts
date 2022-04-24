@@ -57,7 +57,7 @@ type Node struct {
 
 这种形态距离真正的 skiplist 已经很接近了，真正的 skiplist 对于哪些节点要增加指针是随机的。
 
-![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220402151753.png)
+![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220424112630.png)
 
 上面的图示就是一个 skiplist，对于哪个节点需要增加指针，增加多少个指针是随机的。可以看到 node 的层级越多，能跳过的 node 就有可能越多，查找速度有可能越快，但是也不能任凭层级无限制的增长，通常一个 skiplist 会设置一个 `MAX_LEVEL` 来限制最大的层级（代码中用 level 表示）。skiplist 的时间复杂度是 `O(log n)`，和树的时间复杂度一样，效率很高。
 
@@ -161,25 +161,24 @@ func MakeSkipList() *SkipList {
 假设我们要查找 score=12 的 element，当前节点为 `currentNode`，遍历 `currentNode.levels`，遍历会有 3 种情况(每个图示中黄色线条为查找示例)：
 
 1. 第一种 `currentNode.levels[i] == nil`，这种情况下说明该层级指向的下一个节点已经到达 skiplist tail 了，继续查找下一层 level。
-![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220402151428.png)
+![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220424112707.png)
 
 2. 第二种情况 `currentNode.levels[i].Element.score > score`，这种情况说明这个层级的下一个节点 score 已经超出了我们给定的 score。继续查找下一层 level。
-![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220402151512.png)
+![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220424112735.png)
 
 3. 第三种情况 `curretNode.levesl[i].Element.score <= score`，这种情况说明这个层级的下一个节点 score 小于(或等于)我们给定的 score，这个情况下，currentNode 可以直接跳到该 node：`currentNode = currentNode.levels[i]`。
-![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220402151547.png)
+![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220424112804.png)
 
-以上 3 种情况覆盖了 skiplist 查找的所有可能，理解了查找逻辑之后，我们可以开始实现删除逻辑了。
 
 ### Remove
 
-在删除某个元素之前，我们需要找到这个元素，根据上面的查找的思路，我们可以尝试编写代码：
+理清楚查找的 3 个情况，我们就可以实现 remove 方法了 👏
 
 ```go
 func (skipList *SkipList) remove(score float64, member string) *Node {
     currentNode := skipList.header
     for i := MAX_LEVEL - 1; i >= 0; i-- {
-    //这里的 for 为 true 相当于查找的情况 3，但是是用「不是 情况 1」 && 「不是情况 2 」来表示
+    //这里的 for 为 true 相当于情况 3，但是是用「不是 情况 1」 && 「不是情况 2 」来表示
 	for 
             currentNode.levels[i].forward != nil
              &&
@@ -197,23 +196,161 @@ func (skipList *SkipList) remove(score float64, member string) *Node {
 执行完 for 的代码之后，`currentNode` 的下一个节点就是要删除的节点。假设我们要删除 19，那么 currentNode 现在指向 12 节点，现在我们要考虑删除 19 之后要更新哪些数据？
 
 1. 节点 23 的 backward 指针
-2. 指向 19 的 fowards 指针，在这里应该是`节点 8 的 levels[1].forward `和`节点 12 的 levels[0].forward`
+2. 指向 19 的 fowards 指针，在这里应该是`节点 8 的 levels[1].forward `和`节点 12 的 levels[0].forward`。
 
 
 上面的情况 2 是针对删除节点 19 的情况，但是实际会有其他的情况，比如要删除的节点是 23，那么要更新的 forwards 指针就不一样了，所以情况 2 需要有一个更加通用的描述。
 
-为了方便描述，假设要删除的节点是 delNode，delNode 的前一个节点是 backwardDelNode，那么更新 forwards 指针应该是
+为了方便描述，假设要删除的节点是 delNode，delNode 的前一个节点是 currentNode，那么更新 forwards 指针应该是
 
-1. delNode 是 23，那么 `len(delNode.levels) <= len(backwardDelNode.levels)`，那么只要更新 backwardDelNode 中 `levels[0:len(delNode.levels) - 1]` 的 forward 指针。（如下图黄色线条部分
+1. 如果 `len(delNode.levels) <= len(currentNode.levels)`，那么只要更新 currentNode 中 `levels[0:len(delNode.levels) - 1]` 的 forward 指针。（如下图黄色线条部分
 ![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220408115042.png)
    
-2. delNode 是 19，那么 `len(delNode.levels) > len(backwardDelNode.levels)`，那么要更新的 forwards 分成了两个部分
-   1. backwardDelNode 中 `levels[0:len(backwardDelNode.levels) - 1]`
-    ![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220408115749.png)
-   2. 其他节点的 `levels[len(backwardDelNode.levels):len(delNode.levels) - 1]`
-   ![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220408115911.png)
+1. 如果 `len(delNode.levels) > len(currentNode.levels)`，那么要更新的 forwards 分成了两个部分
+   1. currentNode 中 `levels[0:len(currentNode.levels) - 1]`
+    ![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220424112848.png)
+   2. 其他节点的 `levels[len(currentNode.levels):len(delNode.levels) - 1]`
+   ![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220424112932.png)
 
 上面的情况，「1」和「2.1」比较好处理，但是「2.2」的情况比较麻烦一些，因为 2.2 情况要更新 forward 指针的可以是任意节点。
 
+为了处理 2.2 的情况，我们在查找的过程中需要一个 slice 来保存「在查找过程中 level 下降的 node」。这句话可能不好理解，这里举个例子：在查找 19 过程中，currentNode 为 3、8 节点时，会下降层级查找。
+
+```go
+func (skipList *SkipList) remove(score float64, member string) *Node {
+
+    updateNodes := make([]*Node, MAX_LEVEL)  //1
+    currentNode := skipList.header
+    for i := MAX_LEVEL - 1; i >= 0; i-- {
+    //这里的 for 为 true 相当于情况 3，但是是用「不是 情况 1」 && 「不是情况 2 」来表示
+
+	for i := MAX_LEVEL - 1; i >= 0; i-- {
+		for currentNode.levels[i].forward != nil && (currentNode.levels[i].forward.Score < score || (currentNode.levels[i].forward.Score == score && currentNode.levels[i].forward.Member < member)) {
+			currentNode = currentNode.levels[i].forward
+		}
+		updateNodes[i] = currentNode  // 2
+	}
+
+    //现在 currentNode 的下一个节点就是要删除的节点 
+}
+```
+
+![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220424122838.png)
+
+这里要注意 `updateNodes` 中保存了两次 8 节点。
+
+现在有了 updateNodes 中保存的数据，我们就可以更新 forward 指针了，更新 forward 指针的代码如下：
+
+```go
+if len(currentNode.levels) >= len(removeNode.levels) {
+    // remove 情况 1
+    for i := 0; i < len(removeNode.levels); i++ {
+        currentNode.levels[i].forward = removeNode.levels[i].forward
+    }
+} else {
+    // remove 情况 2.1
+    for i := 0; i < len(currentNode.levels); i++ {
+        currentNode.levels[i].forward = removeNode.levels[i].forward
+    }
+
+    // remove 情况 2.2
+    for i := len(currentNode.levels); i < len(removeNode.levels)-1; i++ {
+        updateNodes[i].levels[i].forward = removeNode.levels[i].forward
+    }
+}
+```
+remove 的逻辑差不多已经完成了，主要的难点有 2 个：
+1. 如何找到被删除节点的位置
+2. 删除之后更新 forward 指针
 
 
+### insert
+
+insert 的逻辑和 remove 差不多：
+1. 找到要插入节点的位置
+2. 插入之后更新 forward 指针
+
+整个代码思路和 remove 差不多，这里不再赘述，有些细节问题可以参考 GitHub 的源码。
+
+
+
+### redis 中的 skiplist
+
+最开始提到 redis 中的 zset 结构是基于 skiplist 实现的，不过由于 zset 支持 zrank 操作，所以 redis 对于 skiplist 做了一点改进。
+
+
+![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220424112630.png)
+
+zrank 可以返回 score 的排名，比如节点 3 的排名是 0，节点 36 的排名是 6。如果要获取一个 member 的排名，在现在的 skiplist 中，我们需要遍历 skiplist 最底层的双向链表才能获取到，这样时间复杂度就退化成 `O(n)` 了。
+
+为了 zrank 的效率，redis 对 skiplist 做了一点优化：在 Level 增加 span 属性，代表**当前指针跨越了多少个节点**。
+
+```go
+type Level struct {
+    forward *Node // 同层的下一个节点
+    span    int64 // 跳过多少个元素，如果两个元素相邻，那么 span 为 0
+}
+```
+下图展示了节点 8 每个 level.span 的值
+![](https://raw.githubusercontent.com/chenjiayao/sidergo-posts/master/docs/images/20220424151708.png)
+
+引入 span 之后，rank 就不必遍历链表了：只要在每次跳跃过程中，累计 span 的值，就可以以 `log(n)` 的时间复杂度获取到 rank 值了。
+
+```go
+func (skipList *SkipList) GetRank(member string, score float64) int64 {
+    span := int64(0)
+    currentNode := skipList.header
+
+    for i := MAX_LEVEL - 1; i >= 0; i-- {
+        for currentNode.levels[i].forward != nil && (currentNode.levels[i].forward.Score < score || (currentNode.levels[i].forward.Score == score && currentNode.levels[i].forward.Member < member)) {
+            span += currentNode.levels[i].span + 1
+            currentNode = currentNode.levels[i].forward
+        }
+
+        if currentNode.levels[i].forward != nil && currentNode.levels[i].forward.Member == member {
+            span += currentNode.levels[i].span
+            return span
+        }
+    }
+    return span
+}
+```
+
+引入 span 之后，对于 insert 和 remove 操作，我们同样也需要更新 span 的值，幸运的是更新 span 和更新 forward 的逻辑一样，这里同样不赘述，建议查看 GitHub 上源码了解更多。
+
+
+### 调试
+
+作为一个算法菜鸡，实现 skiplist 过程很痛苦，主要原因在于运行过程中无法「看到」skiplit 的结构，整个调试过程中很抓瞎，索性实现了一个 print 函数，可以将 skiplist 友好的打印出来，具体代码在[这里](https://github.com/chenjiayao/sidergo/blob/master/lib/sortedset/skip_list.go)，希望可以帮到你。
+
+输出的效果如下：
+
+```
++---------+---------+---------+----------+----------+----------+----------+
+| 0.0 : 5 | nil     | nil     | nil      | nil      | nil      | 36.0 : 0 |
+| 0.0 : 5 | nil     | nil     | nil      | nil      | nil      | 36.0 : 0 |
+| 0.0 : 1 | nil     | 8.0 : 2 | nil      | nil      | 23.0 : 0 | 36.0 : 0 |
+| 0.0 : 1 | nil     | 8.0 : 1 | nil      | 19.0 : 0 | 23.0 : 0 | 36.0 : 0 |
+| 0.0 : 0 | 3.0 : 0 | 8.0 : 0 | 12.0 : 0 | 19.0 : 0 | 23.0 : 0 | 36.0 : 0 |
+| 0.0 : 0 | 3.0 : 0 | 8.0 : 0 | 12.0 : 0 | 19.0 : 0 | 23.0 : 0 | 36.0 : 0 |
++---------+---------+---------+----------+----------+----------+----------+
+```
+简单解释下：
+1. cell 中以 `:` 区隔 score 和 span 两个值 ，所以每列 `:` 前面的值都是一样的
+2. 第一列为 header，不代表节点
+3. nil 表示不存在该 level
+
+
+## 总结
+
+回顾一下，本章的几个重点：
+1. skiplist 的实现
+2. redis 为了实现 rank 对 skiplist 做的改进
+
+
+---
+
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="知识共享许可协议" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" /></a><br />本作品采用<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可。
+
+
+<Vssue/>

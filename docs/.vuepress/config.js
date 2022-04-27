@@ -38,6 +38,7 @@ module.exports = {
             { title: "Redis 通信协议", path: "/posts/chapter-2" },
             { title: "sidergo 整体结构设计", path: "/posts/chapter-3" },
             { title: "skiplist 实现", path: "/posts/chapter-4" },
+            { title: "AOF 实现", path: "/posts/chapter-5" },
         ]
     },
     locales: {
